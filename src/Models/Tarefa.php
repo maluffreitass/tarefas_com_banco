@@ -41,7 +41,7 @@ public function getTarefaById(int $id): ?array
 public function update(): bool 
 {
   $sql = "UPDATE tarefas SET titulo = :tiulo, descricao = :descricao,
-    status = :satus, user_id = :userid WHERE  id = :id";
+    status = :status, user_id = :userid WHERE  id = :id";
     $stmt = $this->connection->prepare($sql);
     return $stmt->execute([
      ':id' => $this->id,
