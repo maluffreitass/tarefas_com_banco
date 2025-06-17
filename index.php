@@ -1,32 +1,35 @@
 <?php
+
 use App\Database\Mariadb;
-use App\Models\Tarefa;
+use App\Models\tarefa;
 use App\Models\Usuario;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
- 
+
 require __DIR__ . '/vendor/autoload.php';
- 
+
 $app = AppFactory::create();
 $banco = new Mariadb();
- 
-$app->get('/usuario/{id}/tarefas',
- function (Request $request, Response $response, array $args) use ($banco)
-  {
-    $user_id = (int)$args['id'];
-    $tarefa = new Tarefa($banco->getConnection());
-    $tarefas = $tarefa->getAllByUser($user_id);
-    $response->getBody()->write(json_encode($tarefas));
-    return $response->withHeader('Content-Type', 'application/json');
-});
 
-$app->post('/usuario', function(Request $request, Response $response, array $args) use ($banco)
-{
+// crud usuario
+
+$app->get(
+    '/tarefas/{id}',
+    function (Request $request, Response $response, array $args) use ($banco) {
+        $user_id = (int)$args['id'];
+        $tarefa = new tarefa($banco->getConnection());
+        $tarefas = $tarefa->getAllByUser($user_id);
+        $response->getBody()->write(json_encode($tarefas));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+);
+
+$app->post('/usuario', function (Request $request, Response $response, array $args) use ($banco) {
     $campos_obrigatório = ['nome', 'login', 'senha', 'email'];
     $body = $request->getParsedBody();
-$usuario = new Usuario($banco->getConnection());
-    try{
+    $usuario = new Usuario($banco->getConnection());
+    try {
         $usuario->nome = $body['nome'] ?? '';
         $usuario->login = $body['login'] ?? '';
         $usuario->senha = $body['senha'] ?? '';
@@ -34,11 +37,12 @@ $usuario = new Usuario($banco->getConnection());
         $usuario->foto_path = $body['foto_path'] ?? '';
         foreach ($campos_obrigatório as $campo) {
             if (empty($usuario->{$campo})) {
-              throw  new \Exception("O campo {$campo} é obrigatório.");
+                throw  new \Exception("O campo {$campo} é obrigatório.");
             }
         }
-    }catch(\Exception $exception){
-        $response->getBody()->write(json_encode(['message' => $exception->getMessage()
+    } catch (\Exception $exception) {
+        $response->getBody()->write(json_encode([
+            'message' => $exception->getMessage()
         ]));
         return $response->withheader('Content-Type', 'application/json')->withStatus(400);
     }
@@ -47,6 +51,132 @@ $usuario = new Usuario($banco->getConnection());
     ]));
     return $response->withHeader('Content-Type', 'application/json');
 });
- 
- 
+
+$app->put(
+    '/usuario/{id}',
+    function (Request $request, Response $response, array $args) use ($banco) {
+        $campos_obrigatório = ['nome', 'login', 'senha', 'email'];
+        $body = $request->getParsedBody();
+
+        try {
+            $usuario = new Usuario($banco->getConnection());
+            $usuario->id = $args['id'] ?? '';
+            $usuario->nome = $body['nome'] ?? '';
+            $usuario->email = $body['email'] ?? '';
+            $usuario->login = $body['login'] ?? '';
+            $usuario->senha = $body['senha'] ?? '';
+            $usuario->foto_path = $body['foto_path'] ?? '';
+            foreach ($campos_obrigatório as $campo) {
+                if (empty($usuario->{$campo})) {
+                    throw  new \Exception("O campo {$campo} é obrigatório.");
+                }
+            }
+            $usuario->update();
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode([
+                'message' => $exception->getMessage()
+            ]));
+            return $response->withheader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $response->getBody()->write(json_encode([
+            'message' => 'Usuário atualizado com sucesso!'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
+$app->delete('/usuario/{id}', 
+    function(Request $request, Response $response, array $args) use ($banco)
+ {
+    $id = $args['id'];
+    $usuario = new Usuario($banco->getConnection());
+    $usuario->delete($id);
+    $response->getBody()->write(json_encode(['message' => 'Usuário excluído']));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+
+//crud tarefa
+
+$app->get(
+    '/tarefa/{id}',
+    function (Request $request, Response $response, array $args) use ($banco) {
+        $user_id = (int)$args['id'];
+        $tarefa = new tarefa($banco->getConnection());
+        $resultado = $tarefa->getarefaById($user_id);
+        $response->getBody()->write(json_encode($resultado));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+);
+
+$app->post(
+    '/tarefa',
+    function (Request $request, Response $response, array $args) use ($banco) {
+        $campos_obrigatório = ['titulo', 'status', 'user_id'];
+        $body = $request->getParsedBody();
+        $tarefa = new tarefa($banco->getConnection());
+        try {
+            $tarefa->titulo = $body['titulo'] ?? '';
+            $tarefa->descricao = $body['descricao'] ?? '';
+            $tarefa->status = $body['status'] ?? '';
+            $tarefa->user_id = $body['user_id'] ?? '';
+            foreach ($campos_obrigatório as $campo) {
+                if (empty($tarefa->{$campo})) {
+                    throw  new \Exception("O campo {$campo} é obrigatório.");
+                }
+            }
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode([
+                'message' => $exception->getMessage()
+            ]));
+            return $response->withheader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $response->getBody()->write(json_encode([
+            'message' => 'tarefa cadastrada com sucesso!'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+);
+
+$app->put(
+    '/tarefa/{id}',
+    function (Request $request, Response $response, array $args) use ($banco) {
+        $campos_obrigatório = ['titulo', 'status', 'user_ID'];
+        $body = $request->getParsedBody();
+
+        try {
+            $tarefa = new tarefa($banco->getConnection());
+            $tarefa->id = $args['id'] ?? '';
+            $tarefa->titulo = $body['titulo'] ?? '';
+            $tarefa->descricao = $body['descricao'] ?? '';
+            $tarefa->status = $body['status'] ?? '';
+            $tarefa->user_id = $body['user_id'] ?? '';
+            foreach ($campos_obrigatório as $campo) {
+                if (empty($tarefa->{$campo})) {
+                    throw  new \Exception("O campo {$campo} é obrigatório.");
+                }
+            }
+            $tarefa->update();
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode([
+                'message' => $exception->getMessage()
+            ]));
+            return $response->withheader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $response->getBody()->write(json_encode([
+            'message' => 'tarefa atualizado com sucesso!'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+    $app->delete('/tarefa/{id}', 
+    function(Request $request, Response $response, array $args) use ($banco)
+ {
+    $id = $args['id'];
+    $tarefa = new tarefa($banco->getConnection());
+    $tarefa->delete($id);
+    $response->getBody()->write(json_encode(['message' => 'Usuário excluído']));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+
+
 $app->run();
