@@ -12,7 +12,7 @@ class Usuario
     public string $email = '';
     public string $foto_path = '';
 
-public function _construct(\PDO $connection)
+public function __construct(\PDO $connection)
 {
   $this->connection = $connection;  
 }

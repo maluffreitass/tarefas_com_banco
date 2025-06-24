@@ -8,7 +8,7 @@ class Mariadb {
     private string $password = "123456"; // senha do usuario do banco
     private ?\PDO $connection = null; // conexão com o banco
 
-public function _construct() {
+public function __construct() {
  try {
     $this->connection = new \PDO(
         "mysql:host={$this->host};dbname={$this->dbname};charset=utf8",
@@ -25,7 +25,7 @@ public function _construct() {
     }
     }
 
-    public function getConnection(): ?\PDO {
+    public function getConnection(): \PDO {
         return $this->connection;
     }
  }

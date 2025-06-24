@@ -101,15 +101,13 @@ select * from usuario;
 select * from tarefa;
 ```
 
-
-
 # API - CRUD de Tarefas
 
 ## Desenvolvedor
 
 **Nome completo:** Maria Luiza De Freitas
 
-**Data da entrega:** 17/06/2025
+**Data da entrega:** 24/06/2025
 
 ---
 
@@ -117,7 +115,22 @@ select * from tarefa;
 
 Esta API foi desenvolvida como parte de uma atividade prática e tem como objetivo realizar o gerenciamento de tarefas por meio de um CRUD completo. As funcionalidades implementadas são:
 
-- Criar uma nova tarefa
-- Listar todas as tarefas
-- Atualizar uma tarefa existente
-- Excluir uma tarefa
+- Criar uma nova tarefa (post)
+- Listar todas as tarefas (get)
+- Atualizar uma tarefa existente (put)
+- Excluir uma tarefa (delete)
+ 
+ ## Testes
+
+### ✔️ Criar tarefa
+! [imprimir nova tarefa](imgs/testemetodoposttarefa.png)
+
+### ✔️ Listar tarefa
+! [imprimir todas as tarefas](imgs/testemetodogettarefa.png)
+
+
+### ✔️ Atualizar tarefa
+! [Atualizar](imgs/putput.png)
+
+ ### ✔️ Deletar tarefa
+! [imprimir deletar](imgs/delete.png)
